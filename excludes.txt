@@ -8,3 +8,5 @@ wheelhouse/
 *.log
 *.pyc
 pip-wheel-metadata/
+tsu/tsu/__pycache__/
+data/blobs/

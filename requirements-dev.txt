@@ -1,3 +1,5 @@
-m2r
 pylint
 yapf
+black
+pytest
+pytest-cov

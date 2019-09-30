@@ -3,9 +3,11 @@
 # https://github.com/cswl/tsu/blob/v3.x/LICENSE-MIT
 
 import os
+from . import consts
+from pathlib import Path, PurePath
 
 
-def add_to_path(path):
-    cur_path = os.environ["PATH"]
-    new_path = path + os.pathsep + cur_path
-    return new_path
+def hist_file(shell):
+    shellname = PurePath(shell).name
+    histfile = Path.home() / f"{shellname}_history_root"
+    return str(histfile)

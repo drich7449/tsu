@@ -1,5 +1,5 @@
 import subprocess
 
-args = [ 'yapf',  '-ir' , 'tsu/' ]
+args = [ 'black', 'tsu/', 'tests/' ]
 subprocess.run(args)
 

@@ -17,10 +17,8 @@ from .su_bin import magisk, losu, chsu
 
 import tsu.exec
 from tsu.exec import VerCmp
-import tsu.env_map  
+import tsu.env_map
 from tsu.env_map import EnvMap
-
-
 
 
 def cli():
@@ -51,7 +49,7 @@ def cli():
     ### Debug handler
     debug_enabled = True if args["--debug"] else False
     conlog = Conlog("__main__", Conlog.DEBUG, enabled=debug_enabled)
-    #conlog.dir(args)
+    # conlog.dir(args)
     tsu.env_map.init(conlog, Conlog.DEBUG, enabled=debug_enabled)
     tsu.exec.init(conlog, Conlog.DEBUG, enabled=debug_enabled)
     ver_cmp = conlog.fngrp(VerCmp, Conlog.DEBUG, enabled=debug_enabled)
@@ -69,10 +67,11 @@ def cli():
     # Check `su` binaries:
     su_bins = [magisk, losu, chsu]
     for su_bin in su_bins:
-        try:
-            ver_cmp.compare(su_bin, shell, env)
-        except PermissionError:
-            pass
+        result = ver_cmp.compare(su_bin)
+
+        if result:
+            ver_cmp.call_su(su_bin, args.get("USER"), shell, env)
+            break
 
     print("su binary not found.")
     print("Are you rooted? ")

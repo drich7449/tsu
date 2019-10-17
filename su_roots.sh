@@ -1,7 +1,17 @@
 #!/system/bin/sh
 
-suroots_fp="/sbin/.suroots"
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
 
+if [[ ! -e /sbin/magisk ]]; then 
+    echo "This script only works in magisk enviroment."
+    exit
+fi
+
+suroots_fp="/sbin/.suroots"
+system_mirror="/sbin/.magisk/mirror/system/ "
 mkdir "$suroots_fp"
 
 # Handle LineageOS SU
@@ -23,7 +33,7 @@ init_losu() {
    mount -t proc proc "$chmntdir/proc"
    mount -t sysfs sys "$chmntdir/sys"
   
-  mount -o bind "/system" "$suroots_fp/losu/system"
+    mount -o rw "/sbin/.magisk/block/system" "$suroots_fp/losu/system"
     mount -o bind "/etc" "$suroots_fp/losu/etc"
     
     losu_loc="$suroots_fp/losu/system/xbin/su"

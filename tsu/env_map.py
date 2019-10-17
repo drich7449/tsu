@@ -43,23 +43,23 @@ class EnvMap:
     def c_uid(self, c_uid):
         self._cuid = c_uid
         self.is_other_user = user_utils.is_other_user(self.usern, self._cuid)
-        conlog.debug(r"current_uid {self.is_other_user=}")
 
     def getEnv(self):
-
         if self.is_other_user:
+            return self.clean_other()
             pass
         if self.cleanenv:
             return self.clean_root
         pass
 
     def getShell(self):
-        shell_name = GetShell(self._shell, self.is_other_user).get()
-        conlog.debug(r"{shell_name=}")
+
+        shell_name = conlog.new(GetShell, self._shell, self.is_other_user).get()
+
         return shell_name
 
     @classmethod
-    def __merge_base(E):
+    def _merge_base(E):
         env_b = E._ENV_CLEAN_BASE
         env_bcp = {key: os.environ[key] for key in E._ENV_CLEAN_BASE_COPY}
         return {**env_b, **env_bcp}
@@ -77,10 +77,9 @@ class EnvMap:
         )
         return new_path
 
-    @property
     def clean_other(self):
         E = EnvMap
-        environ = E.__merge_base()
+        environ = E._merge_base()
         return {**environ, **E._ENV_CLEAN_OTHER}
 
     @property
@@ -104,15 +103,19 @@ class EnvMap:
 @attr.s(auto_attribs=True)
 class GetShell:
     shell: str
-    is_termux_user: bool
+    is_other: bool
 
     def get(self):
+        console = self._conlog_.get_console()
+
         root_shell = consts.SYS_SHELL
         USER_SHELL = Path(Path.home(), ".termux/shell")
         BASH_SHELL = Path(consts.TERMUX_PREFIX, "bin/bash")
 
         shell = self.shell
         # Others user cannot access Termux environment
+        if self.is_other:
+            shell = "system"
         # The Android system shell.
         if shell == "system":
             root_shell = consts.SYS_SHELL
@@ -122,4 +125,6 @@ class GetShell:
         # Or at least installed bash
         elif BASH_SHELL.exists():
             root_shell = str(BASH_SHELL)
+
+        console.debug(r" {shell=}  {self.is_other=} {root_shell=}")
         return root_shell

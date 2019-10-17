@@ -16,3 +16,7 @@ ANDROIDSYSTEM_PATHS = "/system/bin:/system/xbin"
 
 ## Location of su binaries.
 ROOT_UID = 0
+
+
+### Help texts
+CHSU_WARN = "SuperSU is abandonware. Consider upgrading your SuperUser Application."

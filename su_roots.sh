@@ -6,21 +6,6 @@ mkdir "$suroots_fp"
 
 # Handle LineageOS SU
 
-sudo {
-    args = "$@"
-    su -c "$@"
-}
-
-mountbinder() {
-    chmntdir="$1"
-  #### mb - mount bindpoints and tmpfs
-  echo "Mounting bindpoints";
-
-  sudo mount -o bind /dev "$chmntdir/dev"
-  sudo mount -t devpts -o rw,gid=5,mode=620 devpts "$chmntdir/dev/pts"
-  sudo mount -t proc proc "$chmntdir/proc"
-  sudo mount -t sysfs sys "$chmntdir/sys"
-}
 
 init_losu() {
     mkdir "$suroots_fp/losu"
@@ -30,10 +15,22 @@ init_losu() {
 
     mkdir "$suroots_fp/losu/system"
     mkdir "$suroots_fp/losu/etc"
-    mountbinder "$suroots_fp/losu"
+   
+   echo "Mounting bindpoints";
 
-    mount -o bind "/system" "$suroots_fp/losu/system"
+   mount -o bind /dev "$chmntdir/dev"
+   mount -t devpts -o rw,gid=5,mode=620 devpts "$chmntdir/dev/pts"
+   mount -t proc proc "$chmntdir/proc"
+   mount -t sysfs sys "$chmntdir/sys"
+  
+  mount -o bind "/system" "$suroots_fp/losu/system"
     mount -o bind "/etc" "$suroots_fp/losu/etc"
+    
+    losu_loc="$suroots_fp/losu/system/xbin/su"
+    touch "$losu_loc"
+    mount -o bind "$(pwd)/data/los16/system/xbin/su" "$losu_loc"
+
+  chmod 0755 "$losu_loc"
 }
 
 
@@ -41,16 +38,17 @@ init_losu() {
 subcommand="$1"
 super_su="$2"
 
-sub_help {
+sub_help() {
     echo "Create a fake root to test su binaries."
 }
 
-sub_mount {
+sub_mount() {
     init_losu
 }
 
-sub_umount {
-    "$suroots_fp/losu"
+sub_umount() {
+    umount $(grep     "$suroots_fp/losu"  /proc/mounts | cut -f2 -d " " | sort -r)
+ 
 }
 case $subcommand in
     "" | "-h" | "--help")
